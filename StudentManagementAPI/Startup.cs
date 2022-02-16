@@ -11,6 +11,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+using StudentManagementAPI.DataModel;
+using StudentManagementAPI.Repositories;
+using StudentManagementAPI.Responsitories;
 
 namespace StudentManagementAPI
 {
@@ -28,10 +32,14 @@ namespace StudentManagementAPI
         {
 
             services.AddControllers();
+            services.AddDbContext<StudentManagementContext>(options 
+                => options.UseSqlServer(Configuration.GetConnectionString("StudentManagementDb")));
+            services.AddScoped<IStudentRepository, SqlStudentRepository>();
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "StudentManagementAPI", Version = "v1" });
             });
+            services.AddAutoMapper(typeof(Startup).Assembly);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
