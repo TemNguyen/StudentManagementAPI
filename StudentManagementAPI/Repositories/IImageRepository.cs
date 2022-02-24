@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using StudentManagementAPI.DataModel;
+using Microsoft.AspNetCore.Http;
 
 namespace StudentManagementAPI.Repositories
 {
-    public interface IStudentRepository
+    public interface IImageRepository
     {
-        Task<List<Student>> GetStudentsAsync();
+        Task<string> Upload(IFormFile file, string fileName);
     }
 }

@@ -9,12 +9,14 @@ using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using FluentValidation.AspNetCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.FileProviders;
 using StudentManagementAPI.DataModel;
 using StudentManagementAPI.Repositories;
-using StudentManagementAPI.Responsitories;
 
 namespace StudentManagementAPI
 {
@@ -30,11 +32,21 @@ namespace StudentManagementAPI
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-
+            services.AddCors((options) =>
+            {
+                options.AddPolicy("angularApplication", (builder) =>
+                {
+                    builder.WithOrigins("http://localhost:4200").AllowAnyHeader()
+                        .WithMethods("GET", "POST", "PUT", "DELETE")
+                        .WithExposedHeaders("*");
+                });
+            });
             services.AddControllers();
+            services.AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<Startup>());
             services.AddDbContext<StudentManagementContext>(options 
                 => options.UseSqlServer(Configuration.GetConnectionString("StudentManagementDb")));
             services.AddScoped<IStudentRepository, SqlStudentRepository>();
+            services.AddScoped<IImageRepository, LocalStorageImageRepository>();
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "StudentManagementAPI", Version = "v1" });
@@ -54,7 +66,15 @@ namespace StudentManagementAPI
 
             app.UseHttpsRedirection();
 
+            app.UseStaticFiles(new StaticFileOptions
+            {
+                FileProvider = new PhysicalFileProvider(Path.Combine(env.ContentRootPath, "Resources")),
+                RequestPath = "/Resources"
+            });
+
             app.UseRouting();
+
+            app.UseCors("angularApplication");
 
             app.UseAuthorization();
 

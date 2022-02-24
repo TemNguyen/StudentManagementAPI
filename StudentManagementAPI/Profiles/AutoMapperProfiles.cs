@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using StudentManagementAPI.DataModel;
+using StudentManagementAPI.Profiles.AfterMaps;
 
 namespace StudentManagementAPI.Profiles
 {
@@ -19,6 +20,12 @@ namespace StudentManagementAPI.Profiles
 
             CreateMap<Address, DomainModels.Address>()
                 .ReverseMap();
+
+            CreateMap<DomainModels.UpdateStudentRequest, Student>()
+                .AfterMap<UpdateStudentRequestAfterMap>();
+
+            CreateMap<DomainModels.AddStudentRequest, Student>()
+                .AfterMap<AddStudentRequestAfterMap>();
         }
     }
 }
